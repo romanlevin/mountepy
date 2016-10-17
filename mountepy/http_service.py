@@ -103,7 +103,15 @@ class HttpService:
         # another process, then it would need to intercept SIGTERM if we'd
         # want to have a multiprocess coverage report.
         self._service_proc.send_signal(signal.SIGINT)
-        self._service_proc.wait(timeout)
+        # TODO catch TimeoutExpired here and start debug mode
+        try:
+            self._service_proc.wait(timeout)
+        except Exception as ex:
+            if 'unstoppable_service' in ex.args[0][1]:
+                raise
+            else:
+                from ptpython.repl import embed
+                embed(globals(), locals())
 
     def __enter__(self):
         self.start()
