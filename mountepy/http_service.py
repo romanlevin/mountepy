@@ -43,8 +43,18 @@ class DockerService:
         self.image = image
         self.port = port
 
+    def _pull_if_necessary(self):
+        client = docker.Client()
+        images = client.images()
+        for image in images:
+            if self.image in image['RepoTags']:
+                return
+        for line in client.pull(repository=self.image, stream=True):
+            print(line)
+
     def start(self, timeout=5.0):
         client = docker.Client()
+        self._pull_if_necessary()
         container = client.create_container(image=self.image)
         self._container_id = container['Id']
         client.start(container=self._container_id)
