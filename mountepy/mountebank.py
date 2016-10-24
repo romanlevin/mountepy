@@ -102,6 +102,14 @@ class MountebankMixin:
         resp.raise_for_status()
 
 
+class ExistingMountebank(MountebankMixin):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+        self._imposters_url = 'http://{}:{}/imposters'.format(host, port)
+
+
 class Dockerbank(DockerService, MountebankMixin):
     def __init__(self, image):
         super().__init__(image, port=2525)
